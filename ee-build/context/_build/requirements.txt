@@ -1,7 +1,0 @@
-napalm
-netmiko
-textfsm
-ntc-templates
-paramiko
-jinja2
-PyYAML
