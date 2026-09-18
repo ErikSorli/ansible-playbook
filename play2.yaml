@@ -1,0 +1,8 @@
+---
+-
+  hosts: all
+
+  tasks:
+    - name: show the current hosts
+      debug:
+        msg: "{{ inventory_hostname }}"
