@@ -1,0 +1,12 @@
+---
+  hosts: all
+
+  tasks:
+    - name: Fetch running configuration of device
+      cisco.ios.ios_command:
+        command: show run
+      register: result
+
+    - name: Print the running configuration on the device
+      debug:
+        msg: "{{ result }}"
