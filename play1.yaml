@@ -7,7 +7,7 @@
     - name: set NTP server
       cisco.ios.ios_config:
         lines:
-          - ntp server "{{ ntp_server }}"
+          - ntp server {{ ntp_server }}
     - name: Fetch ntp server 
       cisco.ios.ios_command:
         commands: show run | include ntp server 
