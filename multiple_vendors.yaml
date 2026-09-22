@@ -1,0 +1,13 @@
+---
+- name: playbook for multiple hosts
+  hosts: all
+
+  tasks:
+    - name: Fetch facts from host
+      ansible.builtin.gather_facts:
+        gather_subset: min
+      register: facts
+
+    - name: Print facts from each host
+      debug:
+        var: facts
