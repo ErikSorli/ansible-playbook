@@ -1,0 +1,92 @@
+---
+- name: Configuring router
+  hosts: router
+
+  tasks:
+    - name: Configure OSPF
+      cisco.ios.ios_ospf_interfaces:
+        config:
+          - name: GigabitEthernet0/1
+            address_family:
+              - afi: ipv4
+                process:
+                  id: 10
+                  area_id: 30
+                adjacency: true
+                cost:
+                  interface_cost: 5
+                dead_interval:
+                  time: 5
+                priority: 25
+                resync_timeout: 10
+                shutdown: true
+                ttl_security:
+                  hops: 5
+        state: merged
+
+    - name: Merge provided configuration with device configuration
+      cisco.ios.ios_bgp_global:
+        config:
+          as_number: 65000
+          bgp:
+            advertise_best_external: true
+            bestpath:
+              - compare_routerid: true
+            dampening:
+              penalty_half_time: 1
+              reuse_route_val: 1
+              suppress_route_val: 1
+              max_suppress: 1
+            default:
+              ipv4_unicast: false
+              route_target:
+                filter: true
+            graceful_shutdown:
+              neighbors:
+                time: 50
+              community: 100
+              local_preference: 100
+            log_neighbor_changes: true
+            nopeerup_delay:
+              - post_boot: 10
+          networks:
+            - address: 192.0.2.3
+            - address: 192.0.2.2
+          neighbor:
+            - address: 192.0.2.1
+              description: merge neighbor
+              remote_as: 100
+              aigp:
+                send:
+                  cost_community:
+                    id: 100
+                    poi:
+                      igp_cost: true
+                      transitive: true
+              route_map:
+                name: test-route
+                out: true
+          redistribute:
+            - connected:
+                metric: 10
+          timers:
+            keepalive: 100
+            holdtime: 200
+            min_holdtime: 150
+        state: merged
+    - name: Fetch BGP configuration
+      cisco.ios.ios_commands:
+        commands: show run | section bgp
+      register: bgp_result
+
+    - name: Fetch ospf configuration
+      cisco.ios.ios_commands:
+        commands: show run | section ospf
+      register: ospf_result
+
+    - name: print configuration
+      debug:
+        var: item
+      loop:
+        - "{{ bgp_result }}"
+        - "{{ ospf_result }}"

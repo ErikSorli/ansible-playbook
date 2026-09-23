@@ -1,0 +1,41 @@
+---
+- name: playbook for vlan
+  hosts: switches
+  become: true
+  become_method: enable
+
+  tasks:
+    - name: Configure access vlan
+      junipernetworks.junos.junos_vlans:
+        config:
+          - name: "{{ item.name }}"
+            vlan_id: "{{ item.id }}"
+      loop: "{{ VLANS }}"
+    
+    - name: Configure trunk port
+      junipernetworks.junos.junos_l2_interfaces:
+        config:
+          - name: xe-0_0_0
+            mode: trunk
+            trunk:
+              native_vlan: 99
+              trunk_allowed_vlans: "{{ VLANS | map(attribute='id') | list }}"
+
+    - name: Configure access ports
+      junipernetworks.junos.junos_l2_interfaces:
+        config:
+          - access:
+            vlan: "{{ item.id }}"
+            enhanced_layer: true
+            name: "{{ item.interface }}"
+        loop: "{{ VLANS }}"
+
+    - name: Fetch VLAN configuration
+      junipernetworks.junos.junos_command:
+        commands:
+          - show vlan
+      register: vlan_result
+
+    - name: Print VLAN result
+      debug:
+        var: vlan_result
