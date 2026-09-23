@@ -1,6 +1,5 @@
 ---
 - name: playbook for vlan
-  hosts: switches
   become: true
   become_method: enable
 
