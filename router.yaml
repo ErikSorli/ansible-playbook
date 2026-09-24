@@ -1,5 +1,6 @@
 ---
 - name: Configuring router
+  hosts: all
 
   tasks:
     - name: Configure OSPF
