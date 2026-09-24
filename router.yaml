@@ -75,12 +75,12 @@
             min_holdtime: 150
         state: merged
     - name: Fetch BGP configuration
-      cisco.ios.ios_commands:
+      cisco.ios.ios_command:
         commands: show run | section bgp
       register: bgp_result
 
     - name: Fetch ospf configuration
-      cisco.ios.ios_commands:
+      cisco.ios.ios_command:
         commands: show run | section ospf
       register: ospf_result
 
