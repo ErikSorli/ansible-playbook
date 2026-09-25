@@ -14,7 +14,6 @@
       junipernetworks.junos.junos_l2_interfaces:
         config:
           - name: xe-0_0_0
-            mode: trunk
             trunk:
               native_vlan: 99
               trunk_allowed_vlans: "{{ VLANS | map(attribute='id') | list }}"
