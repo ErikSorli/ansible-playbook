@@ -1,21 +1,22 @@
 ---
 - name: playbook for vlan
-  hosts: all
+  hosts: switches
+  gather_facts: false
 
   tasks:
-    - name: Configure access vlan
+    - name: Configure VLANs
       junipernetworks.junos.junos_vlans:
         config:
           - name: "{{ item.name }}"
             vlan_id: "{{ item.id }}"
+        state: merged
       loop: "{{ VLANS }}"
 
-    - name: Make ports routed
+    - name: Remove factory inet from switch ports
       junipernetworks.junos.junos_config:
         lines:
-          - "delete interfaces {{ item.name }} unit 0 family ethernet-switching"
-          - "set interfaces {{ item.name }} unit 0 family inet address {{ item.ip }}"
-      loop: "{{ interfaces }}"
+          - "delete interfaces {{ item }} unit 0 family inet"
+      loop: "{{ ['xe-0/0/0'] + (VLANS | map(attribute='interface') | list) }}"
 
     - name: Configure trunk port
       junipernetworks.junos.junos_l2_interfaces:
@@ -23,23 +24,25 @@
           - name: xe-0/0/0
             trunk:
               native_vlan: 99
-              allowed_vlans: "{{ VLANS | map(attribute='id') | list }}"
+              allowed_vlans: "{{ VLANS | map(attribute='id') | map('string') | list }}"
+        state: merged
 
     - name: Configure access ports
       junipernetworks.junos.junos_l2_interfaces:
         config:
-          - access:
-            vlan: "{{ item.id }}"
+          - name: "{{ item.interface }}"
             enhanced_layer: true
-            name: "{{ item.interface }}"
-        loop: "{{ VLANS }}"
+            access:
+              vlan: "{{ item.name }}"
+        state: merged
+      loop: "{{ VLANS }}"
 
     - name: Fetch VLAN configuration
       junipernetworks.junos.junos_command:
         commands:
-          - show vlan
+          - show vlans
       register: vlan_result
 
     - name: Print VLAN result
-      debug:
-        var: vlan_result
+      ansible.builtin.debug:
+        var: vlan_result.stdout_lines
