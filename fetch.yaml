@@ -3,10 +3,9 @@
   hosts: all
 
   tasks:
-    - name: Fetch configuration
+    - name: Show interface config
       junipernetworks.junos.junos_command:
-        commands: show configuration interfaces xe-0/0/0
-      register: configuration
-    - name: Print VLAN result
-      debug:
-        var: configuration
+        commands: show configuration interfaces | display set
+      register: out
+    - ansible.builtin.debug:
+        var: out.stdout_lines
