@@ -16,7 +16,7 @@
           - name: xe-0_0_0
             trunk:
               native_vlan: 99
-              trunk_allowed_vlans: "{{ VLANS | map(attribute='id') | list }}"
+              allowed_vlans: "{{ VLANS | map(attribute='id') | list }}"
 
     - name: Configure access ports
       junipernetworks.junos.junos_l2_interfaces:
