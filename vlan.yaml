@@ -9,7 +9,14 @@
           - name: "{{ item.name }}"
             vlan_id: "{{ item.id }}"
       loop: "{{ VLANS }}"
-    
+
+    - name: Make ports routed
+      junipernetworks.junos.junos_config:
+        lines:
+          - "delete interfaces {{ item.name }} unit 0 family ethernet-switching"
+          - "set interfaces {{ item.name }} unit 0 family inet address {{ item.ip }}"
+      loop: "{{ interfaces }}"
+
     - name: Configure trunk port
       junipernetworks.junos.junos_l2_interfaces:
         config:
