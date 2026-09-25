@@ -1,0 +1,11 @@
+---
+- name: playbook for vlan
+  hosts: all
+
+  tasks:
+    - name: Fetch configuration
+      junipernetworks.junos.junos_command:
+        commands: show configuration interfaces xe-0/0/0
+    - name: Print VLAN result
+      debug:
+        var: vlan_result
