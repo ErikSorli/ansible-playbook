@@ -1,0 +1,8 @@
+---
+- name: test
+  hosts: localhost
+
+  tasks:
+    - name: use survey
+      debug:
+        var: "{{ test_var }}"
