@@ -1,0 +1,15 @@
+---
+- name: test
+  hosts: juniper
+
+  tasks:
+    - name: ping host
+      junipernetworks.junos.junos_ping:
+        dest: "{{ dest_ip }}"
+        size: 1024
+        ttl: 128
+      register: result
+    
+    - name: Print result of ping
+      debug:
+        var: result
