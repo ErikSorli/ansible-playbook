@@ -1,6 +1,7 @@
 ---
 - name: test
   hosts: juniper
+  gather_facts: false
 
   tasks:
     - name: ping host
